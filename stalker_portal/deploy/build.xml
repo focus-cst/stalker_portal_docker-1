@@ -1,0 +1,122 @@
+<?xml version="1.0" ?>
+<project name="stalker_portal" basedir="." default="build">
+
+    <tstamp/>
+
+    <property file="../server/custom.ini"/>
+    <property file="../server/config.ini"/>
+
+    <target name="build" description="Build task">
+
+        <exec command="apt-get -y install php-soap php5-intl php-gettext php5-memcache php5-curl php5-mysql php5-tidy php5-imagick php5-geoip curl"
+              level="info" outputProperty="install.error.msg" returnProperty="install.error.code"/>
+
+        <if>
+            <not>
+                <equals arg1="${install.error.code}" arg2="0"/>
+            </not>
+            <then>
+                <echo msg="${install.error.msg}" level="warning"/>
+            </then>
+        </if>
+
+        <property
+                name="build.dir"
+                value="../"/>
+
+        <resolvepath propertyName="project_path" file="${build.dir}"/>
+
+        <exec command="stop stalkerd" level="info"/>
+
+        <property
+                name="nodejs.bin"
+                value="nodejs"/>
+
+        <exec command="${nodejs.bin} -v" level="info" outputProperty="nodejs_bin_probe.error.msg" returnProperty="nodejs_bin_probe.error.code"/>
+
+        <if>
+            <not>
+                <equals arg1="${nodejs_bin_probe.error.code}" arg2="0"/>
+            </not>
+            <then>
+                <echo msg="${nodejs_bin_probe.error.msg}" level="info"/>
+                <echo msg="using node as binary" level="info"/>
+                <property
+                        name="nodejs.bin"
+                        value="node"
+                        override="true"/>
+            </then>
+        </if>
+
+        <!-- remove deprecated daemon -->
+        <delete file="/etc/init/stalkerd.conf" quiet="true" />
+
+        <!-- removing stalker tasks from crontab -->
+        <exec command="crontab -l | grep -v ${project_path} > /tmp/crontab; crontab /tmp/crontab" checkreturn="true"/>
+
+        <!-- create stalker tasks in /etc/cron.d/ -->
+        <delete file="/etc/cron.d/stalker" quiet="true" />
+
+        <exec command="echo -n ${project_path} | md5sum | cut -f1 -d' '" outputProperty="path_crc" checkreturn="true" />
+
+        <copy file="./src/cron" tofile="/etc/cron.d/stalker_${path_crc}" overwrite="true">
+            <filterchain>
+                <replacetokens>
+                    <token key="STALKERD_INDEX_PATH" value="${project_path}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+
+        <chmod file="/etc/cron.d/stalker_${path_crc}" mode="0755"/>
+
+        <copy file="./src/stalkerd" tofile="/etc/logrotate.d/stalkerd" overwrite="true"/>
+
+        <echo msg="${project_path}"/>
+
+        <if>
+            <isset property="customization_path"/>
+            <then>
+                <resolvepath propertyName="clear_customization_path" file="${customization_path}/"/>
+                <exec
+                        command="cp -r -v ${clear_customization_path}/* ${project_path}"
+                        returnProperty="copyReturn"
+                        outputProperty="copyOutput"
+                        level="info"/>
+
+                <if>
+                    <equals arg1="${copyReturn}" arg2="0"/>
+                    <then>
+                        <echo msg="Copying: ${copyOutput}"/>
+                    </then>
+                </if>
+            </then>
+        </if>
+
+        <chmod file="${project_path}/screenshots" mode="0777" />
+        <chmod file="${project_path}/misc/logos" mode="0777" />
+        <chmod file="${project_path}/misc/audio_covers" mode="0777" />
+
+        <exec command="mkdir ${project_path}/admin" level="info"/>
+        <exec command="mkdir ${project_path}/deploy/composer" level="info"/>
+        <exec command="mkdir ${project_path}/../${apps_path}" level="info"/>
+        <chmod file="${project_path}/../${apps_path}" mode="0777" />
+
+        <exec command="php ${project_path}/deploy/composer/composer.phar install" level="info" outputProperty="install.error.msg" returnProperty="install.error.code"/>
+
+        <if>
+            <not>
+                <equals arg1="${install.error.code}" arg2="0"/>
+            </not>
+            <then>
+                <echo msg="${install.error.msg}" level="warning"/>
+            </then>
+        </if>
+
+        <exec command="/etc/init.d/apache2 restart" level="info"/>
+
+        <exec command="mkdir /var/log/stalkerd" level="info"/>
+        <chmod file="/var/log/stalkerd" mode="0777" />
+
+    </target>
+
+</project>

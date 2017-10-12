@@ -1,0 +1,41 @@
+version: '3'
+services:
+    webserver:
+        container_name: stalker-webserver
+        restart: always
+        build:
+            context: .
+            dockerfile: server.docker
+        ports:
+            - 90:80
+        links:
+            - database
+            
+    database:
+        container_name: stalker-database
+        restart: always
+        build:
+            context: .
+            dockerfile: mysql.docker
+        environment:
+            - "MYSQL_ROOT_PASSWORD=twat"
+            - "MYSQL_DATABASE=docker_stalker"
+            - "MYSQL_USER=docker_stalker"
+            - "MYSQL_PASSWORD=G@Oig2oiu"
+        volumes:
+            - /mysql-storage/:/var/lib/mysql
+            - ./db/:/docker-entrypoint-initdb.d
+        ports:
+           - 3306
+
+    phpmyadmin:
+        container_name: stalker-pma
+        image: phpmyadmin/phpmyadmin
+        links:
+            - database
+        ports:
+            - 8181:80
+        environment:
+            - "PMA_HOST=stalker-database"
+            - "PMA_USER=docker_stalker"
+            - "PMA_PASSWORD=G@Oig2oiu"
