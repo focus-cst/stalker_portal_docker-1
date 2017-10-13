@@ -1,9 +1,0 @@
-	#!/usr/bin/env bash
-
-"${mysql[@]}" <<-EOSQL
-	use mysql;
-	CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-	GRANT ALL PRIVILEGES ON *.* TO '$MYSQL_USER'@'%' WITH GRANT OPTION;
-	FLUSH PRIVILEGES;
-	
-EOSQL
