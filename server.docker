@@ -23,12 +23,6 @@ RUN docker-php-ext-install curl
 RUN docker-php-ext-install tidy
 
 
-# Unpack, install
-RUN wget --no-check-certificate https://www.dropbox.com/s/or4ost29hz5mtc4/v5.1.1.zip?dl=1 -O master.zip
-RUN unzip master.zip
-RUN mv stalker_portal-5.1.1 /var/www/html/stalker_portal/
-RUN touch /var/www/html/index.html
-
 
 # Install and configure apache cloudflare module
 RUN wget https://www.cloudflare.com/static/misc/mod_cloudflare/ubuntu/mod_cloudflare-trusty-amd64.latest.deb -O /tmp/mod_cloudflare-trusty-amd64.latest.deb
@@ -42,13 +36,6 @@ RUN a2enmod rewrite
 RUN pear channel-discover pear.phing.info
 RUN pear install --alldeps phing/phing
 
-# Copy custom.ini, build.xml.
-ADD ./stalker_portal/ /var/www/html/stalker_portal
-
-# Deploy cron jobs, etc (useless in docker)
-WORKDIR /var/www/html/stalker_portal/deploy/
-RUN phing
-
 # Add IonCube Loaders
 RUN mkdir /tmp/ioncube_install
 WORKDIR /tmp/ioncube_install
@@ -57,6 +44,25 @@ RUN tar zxf /tmp/ioncube_install/ioncube_loaders_lin_x86-64.tar.gz
 RUN mv /tmp/ioncube_install/ioncube/ioncube_loader_lin_5.6.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226
 RUN rm -rf /tmp/ioncube_install
 RUN echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20131226/ioncube_loader_lin_5.6.so" >> /etc/php5/apache2/conf.d/00-ioncube.ini
+
+
+# Unpack, install
+RUN wget --no-check-certificate https://www.dropbox.com/s/or4ost29hz5mtc4/v5.1.1.zip?dl=1 -O master.zip
+RUN unzip master.zip
+RUN mv stalker_portal-5.1.1 /var/www/html/stalker_portal/
+RUN touch /var/www/html/index.html
+
+# Install Composer
+RUN /etc/composer.sh
+
+
+# Copy custom.ini, build.xml.
+ADD ./stalker_portal/ /var/www/html/stalker_portal
+
+# Deploy cron jobs, etc (useless in docker)
+WORKDIR /var/www/html/stalker_portal/deploy/
+RUN phing
+
 
 # Workaround
 RUN rm -f /etc/apache2/mods-available/php5.load
@@ -71,7 +77,7 @@ RUN echo "short_open_tag = on" >> /etc/php5/apache2/php.ini
 RUN bash /etc/phpfix.sh
 
 EXPOSE 80
-
+CMD ["chown -R www-data:www-data /var/www/html/"]
 CMD ["apache2-foreground"]
 
 WORKDIR /var/www/html/
