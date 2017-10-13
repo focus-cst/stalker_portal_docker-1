@@ -73,13 +73,13 @@ RUN bash /etc/phpfix.sh
 
 WORKDIR /var/www/html/stalker_portal/deploy/
 RUN export COMPOSER_ALLOW_SUPERUSER=1
-RUN composer update
+
 
 
 EXPOSE 80
 
 CMD ["apache2-foreground"]
-
+CMD ["composer update"]
 WORKDIR /var/www/html/
 
 VOLUME ["/var/www/html/"]
