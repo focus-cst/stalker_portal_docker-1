@@ -19,8 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `stalker_db`
 --
-CREATE DATABASE IF NOT EXISTS `stalker_db` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `stalker_db`;
+CREATE DATABASE IF NOT EXISTS `docker_stalker` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `docker_stalker`;
 
 -- --------------------------------------------------------
 

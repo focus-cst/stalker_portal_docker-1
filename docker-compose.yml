@@ -35,5 +35,5 @@ services:
             - 8181:80
         environment:
             - "PMA_HOST=stalker-database"
-            - "PMA_USER=root"
-            - "PMA_PASSWORD=twat"
+            - "PMA_USER=docker_stalker"
+            - "PMA_PASSWORD=G@Oig2oiu"
