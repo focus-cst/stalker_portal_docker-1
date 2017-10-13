@@ -28,7 +28,7 @@ RUN wget --no-check-certificate https://www.dropbox.com/s/or4ost29hz5mtc4/v5.1.1
 RUN unzip master.zip
 RUN mv stalker_portal-5.1.1 /var/www/html/stalker_portal/
 RUN touch /var/www/html/index.html
-
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install and configure apache cloudflare module
 RUN wget https://www.cloudflare.com/static/misc/mod_cloudflare/ubuntu/mod_cloudflare-trusty-amd64.latest.deb -O /tmp/mod_cloudflare-trusty-amd64.latest.deb
@@ -72,7 +72,7 @@ RUN bash /etc/phpfix.sh
 
 USER www-data
 WORKDIR /var/www/html/stalker_portal/deploy/
-RUN bash /etc/composer.sh
+RUN composer update
 
 USER root
 
