@@ -72,7 +72,7 @@ RUN bash /etc/phpfix.sh
 
 
 WORKDIR /var/www/html/stalker_portal/deploy/
-ENV COMPOSER_ALLOW_SUPERUSER
+RUN export COMPOSER_ALLOW_SUPERUSER=1
 RUN composer update
 
 
