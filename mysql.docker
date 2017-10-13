@@ -1,4 +1,4 @@
 FROM mysql:latest
 RUN apt-get update && apt-get install nano -y
 ADD /db/admin.sql /docker-entrypoint-initdb.d/admin.sql
-ADD /db/stalker_db.zip /docker-entrypoint-initdb.d/stalker_db.zip
+ADD /db/stalker_db.sql /docker-entrypoint-initdb.d/stalker_db.sql
