@@ -22,9 +22,7 @@ services:
             - "MYSQL_DATABASE=docker_stalker"
             - "MYSQL_USER=docker_stalker"
             - "MYSQL_PASSWORD=G@Oig2oiu"
-        volumes:
-            - /mysql-storage/:/var/lib/mysql
-            - ./db/:/docker-entrypoint-initdb.d
+           
         ports:
            - 3306
 
