@@ -72,7 +72,6 @@ RUN bash /etc/phpfix.sh
 RUN bash /etc/composer.sh
 USER www-data
 WORKDIR /var/www/html/stalker_portal/deploy/
-RUN composer update
 
 USER root
 
