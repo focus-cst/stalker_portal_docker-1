@@ -70,11 +70,11 @@ RUN echo "short_open_tag = on" >> /etc/php5/apache2/php.ini
 #Upload etc need to be fixed.
 RUN bash /etc/phpfix.sh
 
-USER www-data
+
 WORKDIR /var/www/html/stalker_portal/deploy/
+ENV COMPOSER_ALLOW_SUPERUSER
 RUN composer update
 
-USER root
 
 EXPOSE 80
 
